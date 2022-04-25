@@ -1,0 +1,27 @@
+{% extends 'index.html' %}
+{% block modal %}
+
+<div class="modal" id="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content  bg-danger">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Status</h5>
+      </div>
+      <div class="modal-body">
+        <p>Update was successfully completed at {{ timestamp }}.<br>Please close the window to continue.</p>
+      </div>
+      <div class="modal-footer">
+        <a href="{{url_for('index')}}" class="btn btn-primary">Close</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+$(document).ready(function(){
+  console.log("Modal opened")
+  $("#modal").modal("show")
+})
+</script>
+{% endblock %}
