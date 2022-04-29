@@ -15,12 +15,15 @@
     <title>Competitive Intelligence 1.0</title>
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   </head>
-  <body class="p-3 mb-2 bg-danger text-white">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
+  <body class="p-3 mb-2 bg-danger bg-opacity-75 text-white">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger bg-opacity-10">
         <div class="container-fluid">
           <a class="navbar-brand" href="/">
             <img src="/static/favicon.ico" alt="" width="30" height="24" class="d-inline-block align-text-top">
             Competitive Intelligence</a>
+          <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button> -->
           <div class="collapse.show navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
               <li class="nav-item">
@@ -30,13 +33,13 @@
                 <a class="nav-link" href="{{url_for('index')}}">Home</a>
                 {% endif %}
               </li>
-              <li class="nav-item">
+              <!-- <li class="nav-item">
                 {% if name == 'wordcloud' %}  
                     <a class="nav-link active" href="{{url_for('wordcloud')}}">Wordcloud</a>
                 {% else %}
                 <a class="nav-link" href="{{url_for('wordcloud')}}">Wordcloud</a>
                 {% endif %}
-              </li>
+              </li> -->
               <li class="nav-item">
                 <a class="nav-link" href="#">Vacancies</a>
               </li>

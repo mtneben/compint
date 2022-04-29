@@ -3,70 +3,169 @@
 {% block content %}
 
     <div class="container">
-      <br><br>
-      <h1>Latest Competitive Intelligence Download Page</h1>
       <br>
-      <div class="container">
+      <h1>Competitive Intelligence Home Page</h1>
+      <br>
+      <div class="row g-3 align-items-center">
+        <div class="col-6">
+            <h2 class="text-dark">Database Statistics</h2>
+            <br>
+        </div>
+        <div class="col">
+          <h2 class="text-dark">Run Scraper</h2>
+          <br>
+        </div>
+        <div class="col">
+
+        </div>
+        <div class="col">
+          <h2  class="text-dark">Download</h2>
+          <br>
+        </div>
+      </div>
         <div class="row">
-          <div class="col">
-            <table class="table table-bordered" style="width:60%; text-align:center">
-              <thead>
+          <div class="col-6">
+            <table class="table table-bordered table-light table-striped border-dark" style="width:60%; text-align:center">
+              <thead class="table-secondary border-dark">
                 <tr>
-                  <th>Info</th>
-                  <th>Date</th>
+                  <th colspan="2">Database Statistics</th>
+                </tr>
+                <tr>
+                  <th>Description</th>
+                  <th>Information</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td>Last Date</td>
-                  <td>{{ max_date.values[0][0] }}</td>
-                </tr>
-                <tr>
                   <td>Last Update Run</td>
                   <td>{{ max_date.values[0][1] }}</td>
                 </tr>
+                <tr>
+                  <td>Articles since</td>
+                  <td>{{ max_date.values[0][0] }}</td>
+                </tr>
+                <td># of Articles in database</td>
+                <td>{{ max_date.values[0][2] }}</td>
+              </tr>
               </tbody>
             </table>
           </div>
           <div class="col">
-            <a href="{{url_for('update')}}" class="btn btn-primary">Update</a><br>
-            <label class="form-label col-form-label-sm">This could take up to a minute. Wait for the pop-up box to appear.<br>If it does not appear after a minute, please click the back button on your browser.</label>
-            <br><br><br>
+              <a href="{{url_for('update')}}" class="btn btn-primary">Update Database</a>
+              <label class="form-label col-form-label-sm">
+                {% if feedback == 'success' %}
+                  <div class="bg-success text-white text-center">The update was successfully completed!</div>
+                {% else %}  
+                <div class="text-white text-center">This could take up to a minute. Wait for this text to change. If it does not, please refresh the page</div>
+                {% endif %}  
+              </label>
+          </div>
+          <div class="col">
+          </div>
+          <div class="col">
             <div class="row g-3 align-items-center">
-              <div class="col-auto">
                 <form action="{{url_for('index')}}" method="POST">
                   <label for="datefrom" class="form-label">Download from:</label>
-                  <input type="date" id="datefrom" class="form-control" name="datefrom" value={{ datenow }}>
+                  <input type="date" id="datefrom" class="form-control" name="datefrom" value={{ datefrom }}>
                   <span class="form-label col-form-label-sm">
                       Select date to download from and click Download
                   </span><br>
                   <input type="submit" class="btn btn-primary" value="Download">
                 </form>
+            </div>  
+          </div>
+        </div>
+        <br><br>
+        <div class="row">
+          <h1>Wordcloud Analytics</h1>
+        </div>
+        <div class="row align-items-center">
+          <div class="col">
+              <h2 class="text-dark">Update / Download</h2>
+              <br>
+          </div>
+          <div class="col">
+          </div>
+          <div class="col">
+            <h2 class="text-dark">Wordcloud Image</h2>
+            <br>
+          </div>
+          <div class="col">
+  
+          </div>
+          <div class="col">
+            <h2  class="text-dark">Wordcloud Breakdown</h2>
+            <br>
+          </div>
+        </div>
+        <div class="row"><p> </p>
+        </div>
+        <div class="row">
+          <div class="col">
+            <div class="row g-3 align-items-center">
+              <div class="col-auto">
+                <form action="{{url_for('wordcloud')}}" method="POST">
+                  <label for="datefrom" class="form-label">Download from:</label>
+                  <input type="date" id="datefrom" class="form-control" name="datefrom" value={{ datefrom }}><br>
+                  <label for="datefrom" class="form-label">Download to:</label>
+                  <input type="date" id="datefrom" class="form-control" name="dateto" value={{ datenow }}><br>
+                  <label for="select1" class="form-label">Filter on:</label>
+                  <div class="dropdown">
+                    <select class="btn btn-light dropdown-toggle" id='select1' name="select1">
+                      <option value="None">All</option>
+                      <option value="VF">Vodafone</option>
+                      <option value="Comp">Competitors</option>
+                      <option value="Mobile">Mobile</option>
+                      <option value="Fixed">Fixed</option>
+                      <option value="Regulatory">Regulatory</option>
+                      <option value="Vendor">Vendor</option>
+                      <option value="Benchmarking">Benchmarking</option>
+                      <option value="Special">Special</option>
+                    </select>
+                  </div>  
+                  <br>
+                  <input type="submit" class="btn btn-primary" value="Update Image">
+
+                  <a href="{{url_for('download')}}" class="btn btn-primary">Download Image</a>
+                </form>
               </div>
             </div>  
             <br><br>
           </div>
+          <div class="col">
+          </div>
+          <div class="col">
+            <p>Showing Wordcloud from {{ dfwc2['fromdate'][0] }} to {{ dfwc2['todate'][0] }} filtered by {{ dfwc2['catfilter'][0] }}</p>
+            <img src={{ url }} alt="Chart" height="500" width="500">
+          </div>
+          <div class="col">
+          </div>
+          <div class="col">
+            <div class="row g-3 align-items-center">
+              <div class="col-auto"></div>
+              <table class="table table-sm table-light table-bordered table-striped">
+                <thead class="table-dark">
+                <tr>
+                  <th style="text-align:center">Word</th>
+                  <th style="text-align:center">Count</th>
+                </tr>
+                </thead>  
+                
+                <tbody>
+                {% for index, row in wordlist.iterrows() %}
+                <tr>
+                    <!-- <td style="text-align:center ; vertical-align: middle">{{index}}</td> -->
+                    {% for item in row %}
+                    <td style="text-align:center ; vertical-align: middle">{{item}}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>  
+            <br><br>
+          </div>
         </div>
-
-      <table class="table table-primary table-warning table-bordered table-striped">
-        <thead class="table-dark">
-        <tr>
-        {% for user in db.columns %}
-            <th style="text-align:center; text-transform: capitalize">{{user}}</th>
-        {% endfor %}
-        </tr>
-        </thead>  
-        
-        <tbody>
-        {% for index, row in db.iterrows() %}
-        <tr style="height:100px">
-            {% for item in row %}
-            <td style="width:20% ; text-align:center ; vertical-align: middle">{{item}}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-        </tbody>
-      </table>
     </div>  
 
     {% endblock %}

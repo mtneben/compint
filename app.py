@@ -1,8 +1,8 @@
-from flask import Flask, render_template, Response, send_file, request, redirect
+from flask import Flask, render_template, Response, send_file, request, redirect, url_for
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import PIL.Image
-import pandas as pd
 import numpy as np
+import pandas as pd
 import sqlalchemy
 import json
 from datetime import datetime
@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import requests
 import lxml
 import os
+import csv
 
 db_username = os.environ['db_username']
 db_password = os.environ['db_password']
@@ -18,6 +19,7 @@ db_endpoint = os.environ['db_endpoint']
 db_name = os.environ['db_name']
 db_table = os.environ['db_table']
 wc_table = os.environ['wc_table']
+wt_table = os.environ['wt_table']
 db_port = os.environ['db_port']
 sqlconnection = f'{db_username}:{db_password}@{db_endpoint}:{db_port}/{db_name}'
 eng = f'//{sqlconnection}'
@@ -30,20 +32,27 @@ app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
-        caldate = request.form['datefrom']
-        df = pd.read_sql(f'SELECT category,filter, date, title, timestamp FROM {db_table} ORDER BY date desc limit 10', engine)
-        max_date = pd.read_sql(f'SELECT max(date) as date, max(timestamp) as last FROM {db_table}', engine)
-        datenow = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
+        caldate = datetime.strptime(request.form['datefrom'], '%Y-%m-%d')
+        caldate2 = caldate.strftime('%Y-%m-%d')
+        caldate = (caldate -relativedelta(days=1)).strftime('%Y-%m-%d')
+        max_date = pd.read_sql(f'SELECT min(date) as date, max(timestamp) as last, count(title) as num FROM {db_table}', engine)
+        datefrom = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
+        datenow = datetime.now().strftime('%Y-%m-%d')
         dfdl = pd.read_sql(f"SELECT * FROM {db_table} WHERE date > '{ caldate }' ORDER BY date desc", engine)
         dfdl.to_excel('./static/CI_download.xlsx', encoding = 'utf-8-sig', index = False)
-        return send_file('./static/CI_download.xlsx', attachment_filename='ci_download.xlsx')        
-
+        return send_file('./static/CI_download.xlsx', attachment_filename=f"CIDownload_{ caldate2 }-{ datenow }.xlsx")        
+        #return render_template('download.html') 
     else:
-        df = pd.read_sql(f'SELECT category,filter, date, title, timestamp FROM {db_table} ORDER BY date desc limit 10', engine)
-        max_date = pd.read_sql(f'SELECT max(date) as date, max(timestamp) as last FROM {db_table}', engine)
+        max_date = pd.read_sql(f'SELECT min(date) as date, max(timestamp) as last, count(title) as num FROM {db_table}', engine)
         datenow = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
         caldate = datenow
-        return render_template('index.html', db = df,  max_date = max_date, datenow = datenow, caldate = caldate, name = 'index')            
+        datefrom = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
+        datenow = (datetime.now()).strftime('%Y-%m-%d')
+        select1 = 'All'
+        dfwc2 = pd.read_sql(f"SELECT * FROM {wc_table}", engine)
+        wordlist = pd.read_sql(f"SELECT * FROM {wt_table}", engine)
+        return render_template('index.html', url ='/static/wc.jpg', max_date = max_date, datenow = datenow, caldate = caldate, name = 'index', datefrom = datefrom, select1 = select1, dfwc2=dfwc2, wordlist=wordlist)            
+
 
 @app.route('/wordcloud', methods=['GET','POST'])
 def wordcloud():
@@ -51,6 +60,7 @@ def wordcloud():
         dateto = request.form['dateto']
         datefrom = request.form['datefrom']
         select1 = request.form['select1']
+        max_date = pd.read_sql(f'SELECT min(date) as date, max(timestamp) as last, count(title) as num FROM {db_table}', engine)
         wordclouddf = pd.DataFrame({"fromdate":[datefrom], "todate":[dateto], 'catfilter':[select1]})
         wordclouddf.to_sql(
             name= f'{wc_table}',
@@ -58,41 +68,61 @@ def wordcloud():
             index = False,
             if_exists='replace'
         )
+        complist = ['EE', 'Three', 'O2', '3 UK', 'Vodafone', 'VMO2', 'BT', 'TalkTalk', 'Virgin', 'Sky', 'CityFibre']
         dfwc1 = pd.read_sql(f"SELECT * FROM {db_table} WHERE date > '{ datefrom }' AND date < '{ dateto }'", engine)
-        if select1 != 'None':
+        logo = np.array(PIL.Image.open('./static/no_logo.jpg')) 
+        if select1 == 'VF':
+            dfwc1 = dfwc1[dfwc1['filter'].str.contains('Vodafone', na=False)]
+            logo = np.array(PIL.Image.open('./static/Vodaphone logo.jpg')) 
+        elif select1 == 'Comp':
+            dfwc1 = dfwc1[dfwc1['filter'].str.contains('|'.join(complist), na=False)]
+        elif select1 != 'None':
             dfwc1 = dfwc1[dfwc1['category'].str.contains(select1, na=False)]
         textfile = ''
         dfwc = dfwc1['title']
         for row in dfwc:
-            textfile = textfile + str(row)
+            textfile = textfile + ' ' + str(row)
+
         if textfile == '':
-            textfile = 'None'    
+            textfile = 'None'  
+        textfile = textfile.title()  
+        replacelist = {'Virgin Media':'VirginMedia', 'Bt':'BT', 'Ee':'EE', 'Isp':'ISP', '3 UK':'Three'}
+        for key in replacelist:
+            textfile = textfile.replace(key, replacelist[key])
         wordfilter = set(list(STOPWORDS)+['UK', 'Full', 'Premises', 'powers', 'Add', 'service', 'new', 'Zen', 'Scotland',
                                   'British', 'dollar', 'network', 'Operator', 'Slashes', 'signs', 'North', 'million',
                                   'Maps', 'Map', 'Coast', 'Cover', 'US', 'contracts', 'Extra', 'GBP', 'England', 'Ireland'])
-
-        logo = np.array(PIL.Image.open('./static/Vodaphone logo.jpg'))   
-        colormap = ImageColorGenerator(logo)
             
-        wc = WordCloud(stopwords = wordfilter,
+        wc = WordCloud(collocations=False,
+                    stopwords = wordfilter,
                     mask = logo,
                     contour_color='red',
                     contour_width=2,
                     background_color='white').generate(textfile)
-        wc.recolor(color_func=colormap)
+
         wc.to_file('./static/wc.jpg')    
         dfwc2 = pd.read_sql(f"SELECT * FROM {wc_table}", engine)
-        return render_template('wordcloud.html', name = 'wordcloud', url ='/static/wc.jpg', datefrom = datefrom, datenow = dateto, select1 = select1, dfwc2=dfwc2)
-    else:
-        datefrom = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
-        datenow = (datetime.now()).strftime('%Y-%m-%d')
-        select1 = 'All'
-        dfwc2 = pd.read_sql(f"SELECT * FROM {wc_table}", engine)
-        return render_template('wordcloud.html', name = 'wordcloud', url ='/static/wc.jpg', datenow = datenow, datefrom = datefrom, select1 = select1, dfwc2=dfwc2)    
-
+        # create a dictionary of word frequencies
+        text_dictionary = wc.process_text(textfile)
+        # sort the dictionary
+        word_freq={k: v for k, v in sorted(text_dictionary.items(),reverse=True, key=lambda item: item[1])}
+        wordlist = pd.DataFrame.from_dict(word_freq, orient='index')
+        wordlist.index.names = ['Words']
+        wordlist.rename(columns={0 : "Freq"}, inplace = True)
+        wordlist = wordlist.head(20)
+        wordlist = wordlist.reset_index()
+        wordlist.to_sql(
+            name= f'{wt_table}',
+            con = engine,
+            index = False,
+            if_exists='replace'
+        )
+        wordlist2 = pd.read_sql(f"SELECT * FROM {wt_table}", engine)
+        return render_template('index.html', name = 'index', url ='/static/wc.jpg', max_date = max_date, datefrom = datefrom, datenow = dateto, select1 = select1, dfwc2=dfwc2, wordlist=wordlist2)
 
 @app.route('/update')
 def update():
+    
     #Start ISPReview Beautiful Soup Scrape
     TCP_final_list = []
     ISPR_final_list = []
@@ -110,7 +140,6 @@ def update():
         response = requests.get(url ,headers=headers)
         driver = response.text
         code = response.status_code
-        print(code)
         soup = BeautifulSoup(driver, 'lxml')
         article_heading = [] #Heading list
         article_headingraw = soup.find_all('h2', class_ = 'h3mobile')
@@ -249,10 +278,16 @@ def update():
     )
     
     df = pd.read_sql(f'SELECT category,filter, date, title, timestamp FROM {db_table} ORDER BY date desc limit 10', engine)
-    max_date = pd.read_sql(f'SELECT max(date) as date, max(timestamp) as last FROM {db_table}', engine)
-    return render_template('update.html', db = df,  max_date = max_date, timestamp = timestamp)
-    
+    max_date = pd.read_sql(f'SELECT min(date) as date, max(timestamp) as last, count(title) as num FROM {db_table}', engine)
+    dfwc2 = pd.read_sql(f"SELECT * FROM {wc_table}", engine)
+    wordlist = pd.read_sql(f"SELECT * FROM {wt_table}", engine)
+    datefrom = (datetime.now() - relativedelta(months=1)).strftime('%Y-%m-%d')
+    datenow = datetime.now().strftime('%Y-%m-%d')
+    caldate = datenow
+    select1 = 'All'
+    return render_template('index.html', url ='/static/wc.jpg', feedback = 'success', max_date = max_date, datenow = datenow, caldate = caldate, name = 'index', datefrom = datefrom, select1 = select1, dfwc2=dfwc2, wordlist=wordlist)
+
 @app.route('/donwload')
 def download():
     dfwc2 = pd.read_sql(f"SELECT * FROM {wc_table}", engine)
-    return send_file('./static/wc.jpg', attachment_filename=f"Wordcloud_{ dfwc2['fromdate'][0] }-{ dfwc2['todate'][0] }_filter_{ dfwc2['catfilter'][0] }.jpg", as_attachment=True)      
+    return send_file('./static/wc.jpg', attachment_filename=f"Wordcloud_{ dfwc2['fromdate'][0] }-{ dfwc2['todate'][0] }_filter_{ dfwc2['catfilter'][0] }.jpg", as_attachment=True)  
