@@ -2,170 +2,184 @@
 
 {% block content %}
 
-    <div class="container">
-      <br>
-      <h1>Competitive Intelligence Home Page</h1>
-      <br>
-      <div class="row g-3 align-items-center">
-        <div class="col-6">
-            <h2 class="text-dark">Database Statistics</h2>
-            <br>
-        </div>
-        <div class="col">
-          <h2 class="text-dark">Run Scraper</h2>
-          <br>
-        </div>
-        <div class="col">
-
-        </div>
-        <div class="col">
-          <h2  class="text-dark">Download</h2>
-          <br>
-        </div>
-      </div>
-        <div class="row">
-          <div class="col-6">
-            <table class="table table-bordered table-light table-striped border-dark" style="width:60%; text-align:center">
-              <thead class="table-secondary border-dark">
-                <tr>
-                  <th colspan="2">Database Statistics</th>
-                </tr>
-                <tr>
-                  <th>Description</th>
-                  <th>Information</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Last Update Run</td>
-                  <td>{{ max_date.values[0][1] }}</td>
-                </tr>
-                <tr>
-                  <td>Articles since</td>
-                  <td>{{ max_date.values[0][0] }}</td>
-                </tr>
-                <td># of Articles in database</td>
-                <td>{{ max_date.values[0][2] }}</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="col">
-              <a href="{{url_for('update')}}" class="btn btn-primary">Update Database</a>
-              <label class="form-label col-form-label-sm">
-                {% if feedback == 'success' %}
-                  <div class="bg-success text-white text-center">The update was successfully completed!</div>
-                {% else %}  
-                <div class="text-white text-center">This could take up to a minute. Wait for this text to change. If it does not, please refresh the page</div>
-                {% endif %}  
-              </label>
-          </div>
-          <div class="col">
-          </div>
-          <div class="col">
-            <div class="row g-3 align-items-center">
-                <form action="{{url_for('index')}}" method="POST">
-                  <label for="datefrom" class="form-label">Download from:</label>
-                  <input type="date" id="datefrom" class="form-control" name="datefrom" value={{ datefrom }}>
-                  <span class="form-label col-form-label-sm">
-                      Select date to download from and click Download
-                  </span><br>
-                  <input type="submit" class="btn btn-primary" value="Download">
-                </form>
-            </div>  
-          </div>
-        </div>
-        <br><br>
-        <div class="row">
-          <h1>Wordcloud Analytics</h1>
-        </div>
-        <div class="row align-items-center">
-          <div class="col">
-              <h2 class="text-dark">Update / Download</h2>
-              <br>
-          </div>
-          <div class="col">
-          </div>
-          <div class="col">
-            <h2 class="text-dark">Wordcloud Image</h2>
-            <br>
-          </div>
-          <div class="col">
+<h1>Selected country: 
   
-          </div>
-          <div class="col">
-            <h2  class="text-dark">Wordcloud Breakdown</h2>
-            <br>
-          </div>
-        </div>
-        <div class="row"><p> </p>
-        </div>
-        <div class="row">
-          <div class="col">
-            <div class="row g-3 align-items-center">
-              <div class="col-auto">
-                <form action="{{url_for('wordcloud')}}" method="POST">
-                  <label for="datefrom" class="form-label">Download from:</label>
-                  <input type="date" id="datefrom" class="form-control" name="datefrom" value={{ datefrom }}><br>
-                  <label for="datefrom" class="form-label">Download to:</label>
-                  <input type="date" id="datefrom" class="form-control" name="dateto" value={{ datenow }}><br>
-                  <label for="select1" class="form-label">Filter on:</label>
-                  <div class="dropdown">
-                    <select class="btn btn-light dropdown-toggle" id='select1' name="select1">
-                      <option value="None">All</option>
-                      <option value="VF">Vodafone</option>
-                      <option value="Comp">Competitors</option>
-                      <option value="Mobile">Mobile</option>
-                      <option value="Fixed">Fixed</option>
-                      <option value="Regulatory">Regulatory</option>
-                      <option value="Vendor">Vendor</option>
-                      <option value="Benchmarking">Benchmarking</option>
-                      <option value="Special">Special</option>
-                    </select>
-                  </div>  
-                  <br>
-                  <input type="submit" class="btn btn-primary" value="Update Image">
+	  {% if opco %}
+	  <span>{{ opco }}</span>
+	  <img src="/static/{{ opco }}.svg" alt="{{ opco }}" width="50" height="30">
+	  {% else %}
+	  <span>UK</span>
+	  <img src="/static/UK.svg" alt="UK" width="50" height="30">
+	  {% endif %}	    
+  
+  
+	<a class="btn dropdown-toggle btn-outline-secondary" href="#" id="countryDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+		Country/OpCo
+	</a>
+	<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+		<li><a class="dropdown-item" href="/country/UK" data-bs-toggle="tooltip" data-bs-placement="right" title="United Kingdom"><img src="/static/UK.svg" alt="UK" width="24" height="24"> United Kingdom</a></li>
+		<li><a class="dropdown-item" href="/country/AL" data-bs-toggle="tooltip" data-bs-placement="right" title="Albania"><img src="/static/AL.svg" alt="AL" width="24" height="24"> Albania</a></li>                  
+		<li><a class="dropdown-item" href="/country/CZ" data-bs-toggle="tooltip" data-bs-placement="right" title="Czech Republic"><img src="/static/CZ.svg" alt="CZ" width="24" height="24"> Czech Republic</a></li>                  
+		<li><a class="dropdown-item" href="/country/DE" data-bs-toggle="tooltip" data-bs-placement="right" title="Germany"><img src="/static/DE.svg" alt="DE" width="24" height="24"> Germany</a></li>
+		<li><a class="dropdown-item" href="/country/GR" data-bs-toggle="tooltip" data-bs-placement="right" title="Greece"><img src="/static/GR.svg" alt="GR" width="24" height="24"> Greece</a></li>
+		<li><a class="dropdown-item" href="/country/HU" data-bs-toggle="tooltip" data-bs-placement="right" title="Hungary"><img src="/static/HU.svg" alt="HU" width="24" height="24"> Hungary</a></li>
+		<li><a class="dropdown-item" href="/country/IE" data-bs-toggle="tooltip" data-bs-placement="right" title="Ireland"><img src="/static/IE.svg" alt="IE" width="24" height="24"> Ireland</a></li>
+		<li><a class="dropdown-item" href="/country/IT" data-bs-toggle="tooltip" data-bs-placement="right" title="Italy"><img src="/static/IT.svg" alt="IT" width="24" height="24"> Italy</a></li>
+		<li><a class="dropdown-item" href="/country/NL" data-bs-toggle="tooltip" data-bs-placement="right" title="Netherlands"><img src="/static/NL.svg" alt="NL" width="24" height="24"> Netherlands</a></li>
+		<li><a class="dropdown-item" href="/country/PT" data-bs-toggle="tooltip" data-bs-placement="right" title="Portugal"><img src="/static/PT.svg" alt="PT" width="24" height="24"> Portugal</a></li>
+		<li><a class="dropdown-item" href="/country/RO" data-bs-toggle="tooltip" data-bs-placement="right" title="Romania"><img src="/static/RO.svg" alt="RO" width="24" height="24"> Romania</a></li>
+		<li><a class="dropdown-item" href="/country/ES" data-bs-toggle="tooltip" data-bs-placement="right" title="Spain"><img src="/static/ES.svg" alt="ES" width="24" height="24"> Spain</a></li>
+		<li><a class="dropdown-item" href="/country/TR" data-bs-toggle="tooltip" data-bs-placement="right" title="Turkey"><img src="/static/TR.svg" alt="TR" width="24" height="24"> Turkey</a></li>
+	</ul>
+</h1>
+  <span class="fs-6 fw-normal text-muted">To change countries, please select from the menu</span>
+  <div class="alert alert-warning" role="alert">
+	Please note some performance/functionality issues have arisen.<br>
+	The system was originally design for a single user, but now that multiple users access the system at the same time, we are seeing some anomolies.<br>
+	We are in the process of changing the website to a multi-user platform, and hope to have this implemented before the end of the month.<br>
+	Please bear with us :-)
+  </div>
 
-                  <a href="{{url_for('download')}}" class="btn btn-primary">Download Image</a>
-                </form>
-              </div>
-            </div>  
-            <br><br>
-          </div>
-          <div class="col">
-          </div>
-          <div class="col">
-            <p>Showing Wordcloud from {{ dfwc2['fromdate'][0] }} to {{ dfwc2['todate'][0] }} filtered by {{ dfwc2['catfilter'][0] }}</p>
-            <img src={{ url }} alt="Chart" height="500" width="500">
-          </div>
-          <div class="col">
-          </div>
-          <div class="col">
-            <div class="row g-3 align-items-center">
-              <div class="col-auto"></div>
-              <table class="table table-sm table-light table-bordered table-striped">
-                <thead class="table-dark">
-                <tr>
-                  <th style="text-align:center">Word</th>
-                  <th style="text-align:center">Count</th>
-                </tr>
-                </thead>  
-                
-                <tbody>
-                {% for index, row in wordlist.iterrows() %}
-                <tr>
-                    <!-- <td style="text-align:center ; vertical-align: middle">{{index}}</td> -->
-                    {% for item in row %}
-                    <td style="text-align:center ; vertical-align: middle">{{item}}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            </div>  
-            <br><br>
-          </div>
-        </div>
-    </div>  
+  <br><br><br>
+	<div class="row">
+		<div class="col-auto">
+		</div>
+		<div class="col-5 text-center" id='left-col' style="border-radius: 25px; border: 2px solid #e60000">
+      <br>
+			<h2 class="text-dark">Database Information</h2>
+			<br>
+			<table class="table table-bordered table-striped" style="width:50%; margin: auto">
+				<thead class="table-dark">
+					<tr>
+						<th colspan="2">Database Statistics</th>
+					</tr>
+					<tr>
+						<th>Description</th>
+						<th>Information</th>
+					</tr>
+				</thead>
+				<tbody class="border-dark">
+					<tr>
+						<td>Last Update Run</td>
+						<td>{{ max_date.values[0][1] }}</td>
+					</tr>
+					<tr>
+						<td>Articles since</td>
+						<td>{{ max_date.values[0][0] }}</td>
+					</tr>
+					<tr>
+						<td># of Articles</td>
+						<td>{{ max_date.values[0][2] }}</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+			<form action="{{url_for('update')}}" method="POST">
+				{% if opco %}
+					<input type="hidden" name="opco-name" value={{ opco }}>
+				{% else %}
+				  <input type="hidden" name="opco-name" value='UK'>
+				{% endif %}
+				<input type="submit" class="btn" value="Update Database" style="background-color:#e60000; color: #ffffff;"></form>
+			<br>
+			<label class="form-label col-form-label-sm" style="width:50%; margin: auto">
+			{% if feedback == 'success' %}
+				<div class="bg-success text-white text-center">The update was successfully completed!</div>
+			{% else %}  
+				<div class="text-dark text-center" >This could take up to a minute. Wait for this text to change. If it does not, please refresh the page</div>
+			{% endif %}  
+			</label>
 
-    {% endblock %}
+			<form action="{{url_for('index')}}" method="POST">
+			  <input type="hidden" name="form-name" value="downloadform">
+			  {% if opco %}
+			  	<input type="hidden" name="opco-name" value={{ opco }}>
+			  {% else %}
+				<input type="hidden" name="opco-name" value='UK'>
+			  {% endif %}
+			  <label for="datefrom" class="form-label text-dark">Download from:</label>
+			  <input type="date" id="datefrom" class="form-control btn-outline-secondary" name="datefrom" value={{ datefrom }} style="width:30%; margin: auto">
+			  <span class="form-label col-form-label-sm text-dark">
+				  Select date to download from and click Download
+			  </span>
+			  <br>
+			  <input type="submit" class="btn" value="Download" style="background-color:#e60000; color: #ffffff;">
+			</form>
+
+		</div>
+    <div class="col-1" ></div>
+		<div class="col-5 text-center", id='right-col' style="border-radius: 25px; border: 2px solid #e60000">
+      <br>
+			<div class="row">
+				<h2 class="text-dark">Wordcloud Analytics</h2>
+				<br><br><br><br>
+				<form action="{{url_for('index')}}" method="POST">
+					<input type="hidden" name="form-name" value="wordcloudform">
+					{% if opco %}
+						<input type="hidden" name="opco-name" value={{ opco }}>
+					{% else %}
+				  		<input type="hidden" name="opco-name" value='UK'>
+					{% endif %}	   >
+					<label for="datefrom" class="form-label text-dark">Download from:</label>
+					<input type="date" id="datefrom" class="form-control btn-outline-secondary" name="datefrom" value={{ datefrom }} style="width:30%; margin: auto"><br>
+					<label for="datefrom" class="form-label text-dark">Download to:</label>
+					<input type="date" id="datefrom" class="form-control btn-outline-secondary" name="dateto" value={{ datenow }} style="width:30%; margin: auto"><br>
+					<label for="select1" class="form-label text-dark">Filter on:</label>
+					<div class="dropdown">
+						<select class="btn dropdown-toggle btn-outline-secondary" id='select1' name="select1">
+							<option value="None">All</option>
+							<option value="VF">Vodafone</option>
+							<option value="Comp">Competitors</option>
+							<option value="Mobile">Mobile</option>
+							<option value="Fixed">Fixed</option>
+							<option value="Regulatory">Regulatory</option>
+							<option value="Vendor">Vendor</option>
+							<option value="Benchmarking">Benchmarking</option>
+							<option value="Special">Special</option>
+						</select>
+					</div>  
+					<br>
+					<input type="submit" class="btn" value="Update Image" style="background-color:#e60000; color: #ffffff;">
+					<a href="{{url_for('download')}}" class="btn" style="background-color:#e60000; color: #ffffff;">Download Image</a>
+          <br><br>
+				</form>
+        
+			</div>
+			<div class="row">
+        <p class="text-dark text-center" style="margin: auto">Showing Wordcloud from {{ dfwc2['fromdate'][0] }} to {{ dfwc2['todate'][0] }} filtered by {{ dfwc2['catfilter'][0] }}-{{ dfwc2['country'][0] }}</p>
+				<div class="col text-center">
+					
+					<br>
+          <img src={{ url }} alt="Chart" height="400" width="400">
+				</div>	
+				<!-- <div class="col"> -->
+					<!-- <br><br><br> -->
+					<!-- <table class="table table-bordered table-striped" style="width:50%; margin: auto">
+						<thead class="table-dark">
+							<tr>
+								<th>Word</th>
+								<th>Count</th>
+							</tr>
+						</thead>  
+						<tbody class="border-dark">
+						{% for index, row in wordlist.iterrows() %}
+							<tr>
+							{% for item in row %}
+								<td>{{item}}</td>
+							{% endfor %}
+							</tr>
+						{% endfor %}
+						</tbody>
+					</table> -->
+          <!-- <br>
+				</div> -->
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+{% endblock %}

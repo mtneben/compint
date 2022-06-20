@@ -1,0 +1,109 @@
+{% extends 'base.html' %}   
+
+{% block content %}
+
+<h1>Vacancy Analytics UK<img src="/static/UK.svg" alt="UK" width="50" height="30"></h1>
+  <br><br><br>
+	<div class="row">
+		<div class="col-auto">
+		</div>
+		<div class="col-5 text-center" id='left-col' style="border-radius: 25px; border: 2px solid #e60000">
+      <br>
+			<h2 class="text-dark">Database Information</h2>
+			<br>
+			<table class="table table-bordered table-striped" style="width:50%; margin: auto">
+				<thead class="table-dark">
+					<tr>
+						<th colspan="2">Database Statistics</th>
+					</tr>
+					<tr>
+						<th>Description</th>
+						<th>Information</th>
+					</tr>
+				</thead>
+				<tbody class="border-dark">
+					<tr>
+						<td>Latest Vacancy Date</td>
+						<td>{{ max_date.values[0][0] }}</td>
+					</tr>
+					<tr>
+						<td># of Vacancies</td>
+						<td>{{ max_date.values[0][1] }}</td>
+					</tr>
+				</tbody>
+			</table>
+			<br>
+			<form action="{{url_for('vacancies')}}" method="POST">
+				<input type="hidden" name="form-name" value="updateform">
+				<input type="submit" class="btn" value="Update Database" style="background-color:#e60000; color: #ffffff;">
+				<br>
+				<label class="form-label col-form-label-sm" style="width:50%; margin: auto">
+				{% if feedback == 'success' %}
+					<div class="bg-success text-white text-center">The update was successfully completed!</div>
+				{% else %}  
+					<div class="text-dark text-center" >This could take up to a minute. Wait for this text to change. If it does not, please refresh the page</div>
+				{% endif %}  
+				</label>
+			</form>
+			<form action="{{url_for('vacancies')}}" method="POST">
+			  <input type="hidden" name="form-name" value="downloadform">
+			  <label for="datefrom" class="form-label text-dark">Download from:</label>
+			  <input type="date" id="datefrom" class="form-control btn-outline-secondary" name="datefrom" value={{ datefrom }} style="width:30%; margin: auto">
+			  <span class="form-label col-form-label-sm text-dark">
+				  Select date to download from and click Download
+			  </span>
+			  <br>
+			  <input type="submit" class="btn" value="Download" style="background-color:#e60000; color: #ffffff;">
+			</form>
+
+		</div>
+    <div class="col-1" ></div>
+		<div class="col-5 text-center", id='right-col' style="border-radius: 25px; border: 2px solid #e60000">
+      <br>
+			<div class="row">
+				<h2 class="text-dark">Wordcloud Analytics</h2>
+				<br><br><br><br>
+				<form action="{{url_for('vacancies')}}" method="POST">
+					<input type="hidden" name="form-name" value="wordcloudform">
+					<label for="datefrom" class="form-label text-dark">Download from:</label>
+
+					<input type="date" id="datefrom" class="form-control btn-outline-secondary" name="datefrom" value={{ datefrom }} style="width:30%; margin: auto"><br>
+					<label for="datefrom" class="form-label text-dark">Download to:</label>
+					<input type="date" id="datefrom" class="form-control btn-outline-secondary" name="dateto" value={{ datenow }} style="width:30%; margin: auto"><br>
+					<label for="select1" class="form-label text-dark">Filter on:</label>
+					<div class="dropdown">
+						<select class="btn dropdown-toggle btn-outline-secondary" id='select1' name="select1">
+							<option value="None">All</option>
+							<option value="VF">Vodafone</option>
+							<option value="Comp">Competitors</option>
+						</select>
+					</div>  
+					<br>
+					<input type="submit" class="btn" value="Update Image" style="background-color:#e60000; color: #ffffff;">
+				</form>
+				
+				<form action="{{url_for('vacancies')}}" method="POST">	
+					<input type="hidden" name="form-name" value="wordclouddownload">
+					<br>
+					<input type="submit" class="btn" value="Download Image" style="background-color:#e60000; color: #ffffff;">
+				</form>
+					<br><br>
+				
+        
+			</div>
+			<div class="row">
+        <p class="text-dark text-center" style="margin: auto">Showing Wordcloud from {{ dfwc2['fromdate'][0] }} to {{ dfwc2['todate'][0] }} filtered by {{ dfwc2['catfilter'][0] }}</p>
+				<div class="col text-center">
+					
+					<br>
+          <img src={{ url }} alt="Chart" height="400" width="400">
+		  
+				</div>	
+			</div>
+		</div>
+	</div>
+
+
+
+
+{% endblock %}
