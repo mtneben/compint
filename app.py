@@ -13,19 +13,20 @@ import lxml
 import os
 import csv
 
-db_username = os.environ['db_username']
-db_password = os.environ['db_password']
-db_endpoint = os.environ['db_endpoint']
-db_name = os.environ['db_name']
-db_table = os.environ['db_table']
-wc_table = os.environ['wc_table']
-wt_table = os.environ['wt_table']
-db_port = os.environ['db_port']
-jb_table = os.environ['jb_table']
-jwc_table = os.environ['jwc_table']
+db_username = 'ciadmin'
+db_password = 'competitiveIntelligence1'
+db_endpoint = 'competitiveintelligencedb.cj1ozz2pbngk.eu-west-2.rds.amazonaws.com'
+db_name = 'vfci1'
+db_table = 'maintable'
+wc_table = 'wordcloudtable'
+wt_table = 'wordcloudtext'
+jb_table = 'jobstable'
+jwc_table = 'wordcloudtable'
+db_port = 3306
 sqlconnection = f'{db_username}:{db_password}@{db_endpoint}:{db_port}/{db_name}'
 eng = f'//{sqlconnection}'
-engine = sqlalchemy.create_engine(f'mysql+pymysql://{sqlconnection}')
+# engine = sqlalchemy.create_engine(f'mysql+pymysql://{sqlconnection}')
+engine = sqlalchemy.create_engine('sqlite:///cidb.db')
 
 
 
@@ -154,7 +155,7 @@ def update():
     tcpurl = "https://telecompaper-api-abduz5l4ya-ez.a.run.app/graphql"
     url = 'https://www.ispreview.co.uk/'
     headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-    maxPages = 10
+    maxPages = 10 # revert to 10
 
     while code == 200 and pagecount < maxPages and nextpage:
         response = requests.get(url ,headers=headers)
@@ -216,7 +217,7 @@ def update():
         payload = {
             "operationName": None,
             "variables": {
-                "first": 100,
+                "first": 100, # revert to 100
                 "where": {
                     "country": {"id": {"eq": country['countryid']}},
                     "language": {"id": {"eq": 1}}
@@ -284,8 +285,10 @@ def update():
     union = union.drop(columns=['Mobile', 'Fixed', 'Regulatory', 'Vendor', 'Benchmarking', 'Special'])
     union=union[['category', 'filter','date', 'title', 'summary', 'url', 'country']]
 
-    engine = sqlalchemy.create_engine(f'mysql+pymysql://{sqlconnection}')
-    sqlimport = pd.read_sql(f'{db_table}', engine)
+    # engine = sqlalchemy.create_engine(f'mysql+pymysql://{sqlconnection}')
+    engine = sqlalchemy.create_engine('sqlite:///cidb.db')
+    # sqlimport = pd.read_sql(f'{db_table}', engine)
+    sqlimport = pd.read_sql('select * from maintable', engine)
 
     tempfile = union.merge(sqlimport, on='title', how='left', indicator=True, suffixes = ('', '_y')).query('_merge == "left_only"')
     tempfile = tempfile[['category', 'filter', 'date', 'title', 'summary', 'url', 'country']]
@@ -335,6 +338,7 @@ def vacancies():
                 }
 
                 companylist = ['Vodafone', 'Ee-1', 'O2-8', 'Three', 'Virgin-Media']
+                discardlist = ['Retail', 'Customer Advisor', 'Sales', 'HR', 'Call Center', 'Store', 'Recruit', 'Talent', 'Resource', 'Personal', 'Administrator', 'legal', 'counsel']
 
                 jobids = []
                 joblist = []
